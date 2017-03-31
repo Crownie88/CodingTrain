@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="us">
+<head>
+	<meta charset="utf-8">
+	<title>jQuery UI Example Page</title>
+	<link href="jquery-ui.css" rel="stylesheet">
+	<style>
+	body{
+		font-family: "Trebuchet MS", sans-serif;
+		margin: 50px;
+	}
+	.demoHeaders {
+		margin-top: 2em;
+	}
+	select {
+		width: 200px;
+	}
+	#slider{
+		width: 300px;
+	}
+	.ui-slider-range-min{
+		background-color: #ff9400;
+	}
+	#container{
+		width: 600px;
+		margin: auto;
+		border: 2px solid black;
+		padding-left: 25px;
+		padding-bottom: 25px;
+		padding-right: 25px;
+	}
+	</style>
+</head>
+<body>
+
+<div id="container" class="ui-corner-all">
+	<h1>AP Calculator</h1>
+
+<div class="ui-widget">
+	<p>This page lets you calculate the AP gain from an M+</p>
+	</div>
+
+	<!-- Slider -->
+	<label>Artifact knowledge:</label>
+	<input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold;">
+	<div id="slider"></div>
+
+
+
+	<label>Dungeon</label><br>
+	<select id="selectmenu">
+		<option selected="selected">Select a dungeon</option>
+		<option>Black Rook Hold</option>
+		<option>Cathedral of Eternal Night</option>
+		<option>Court of Stars</option>
+		<option>Darkheart Thicket</option>
+		<option>Eye of Azshara</option>
+		<option>Halls of Valor</option>
+		<option>Karazhan (Lower)</option>
+		<option>Karazhan (Upper)</option>
+		<option>Maw of souls</option>
+		<option>Neltharion's Lair</option>
+		<option>The Arcway</option>
+		<option>Vault of the Wardens</option>
+	</select><br>
+
+	<label>Difficulty</label><br>
+	<select id="selectLevel">
+		<option selected="selected">Select a difficulty</option>
+		<option>+2~+3</option>
+		<option>+4~+6</option>
+		<option>+7~+9</option>
+		<option>+10 and above</option>
+	</select>
+	<div class="ui-widget">
+	<div id="warnDiv" class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;">
+		<p><span id="warn" class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+		Select a dungeon and/or difficulty</p>
+	</div>
+</div>
+</div>
+
+<script src="external/jquery/jquery.js"></script>
+<script src="jquery-ui.js"></script>
+<script>
+var BaseVals = [
+	{TwoThree: 0, FourSix: 0, SevenNine: 0, TenAbove: 0},
+	{TwoThree: 300, FourSix: 475, SevenNine: 540, TenAbove: 775},
+	{TwoThree: 300, FourSix: 475, SevenNine: 540, TenAbove: 775},
+	{TwoThree: 300, FourSix: 475, SevenNine: 540, TenAbove: 775},
+	{TwoThree: 300, FourSix: 475, SevenNine: 540, TenAbove: 775},
+	{TwoThree: 300, FourSix: 475, SevenNine: 540, TenAbove: 775},
+	{TwoThree: 375, FourSix: 600, SevenNine: 675, TenAbove: 1000},
+	{TwoThree: 300, FourSix: 475, SevenNine: 540, TenAbove: 775},
+	{TwoThree: 300, FourSix: 475, SevenNine: 540, TenAbove: 775},
+	{TwoThree: 175, FourSix: 290, SevenNine: 325, TenAbove: 465},
+	{TwoThree: 300, FourSix: 475, SevenNine: 540, TenAbove: 775},
+	{TwoThree: 375, FourSix: 600, SevenNine: 675, TenAbove: 1000},
+	{TwoThree: 300, FourSix: 475, SevenNine: 540, TenAbove: 775}
+];
+var KnowledgeMult = [
+	1, 1.25, 1.5, 1.9, 2.4, 3, 3.75, 4.75, 6, 7.5, 9.5, 12, 15, 
+	18.75, 23.5, 29.5, 37, 46.5, 58, 73, 91, 114, 143, 179, 224, 250,
+	1001, 1301, 1701, 2201, 2901, 3801, 4901, 6401, 8301, 10801, 14001, 18201,
+	23701, 30801, 40001, 52001, 67601, 87901, 114301, 148601, 193201, 251201, 326601, 424601, 552001
+];
+
+function Calculate(dungeon, diff){
+	var mult = KnowledgeMult[$('#slider').slider("value")];
+	var dung = BaseVals[dungeon];
+	var base = 0;
+	if (diff == 1){
+		base = dung.TwoThree;
+	}else if (diff == 2){
+		base = dung.FourSix;
+	}else if (diff == 3){
+		base = dung.SevenNine;
+	}else if (diff == 4){
+		base = dung.TenAbove;
+	}else{
+		base = 0;
+	}
+	var ap = base * mult;
+	if (ap > 1000)
+		ap = ap/1000;
+	return ap + "K";
+}
+
+function ShowInfo(){
+	console.log('here');
+	var msg = "";
+	var dungeon = $('#selectmenu').val();
+	console.log(dungeon);
+	var lvl = $('#selectLevel').val();
+	console.log(lvl);
+
+	if ($('#selectmenu')[0].selectedIndex == 0 || $('#selectLevel')[0].selectedIndex == 0){
+		console.log('wrong');
+		msg = "Select a dungeon and/or difficulty";
+	}else{
+		var icon = '<span id="warn" class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>';
+		var AP = Calculate($('#selectmenu')[0].selectedIndex, $('#selectLevel')[0].selectedIndex);
+		console.log('this is good');
+		console.log(AP);
+		msg = icon + "Running a level " + lvl + " " + dungeon + " will grant you <strong>" + AP + " AP</strong>";
+		console.log(msg);
+		$('#warn').parent().html(msg);
+	}
+	
+}
+
+function DoCalculate(){
+	var selItem = $('#selectmenu')[0].selectedIndex;
+	if (selItem == 0){return;}
+	
+}
+
+$( function() {
+    $( "#slider" ).slider({
+      range: "min",
+      min: 0,
+      max: 50,
+      value: 25,
+      width: 100,
+      slide: function( event, ui ) {
+        $( "#amount" ).val( ui.value );
+        ShowInfo();
+      }
+    });
+    $( "#amount" ).val( $( "#slider" ).slider( "value" ) );
+  } );
+
+$( "#selectmenu" ).selectmenu({
+	change: ShowInfo
+});
+$( "#selectLevel" ).selectmenu({
+	change: ShowInfo
+});
+</script>
+</body>
+</html>
